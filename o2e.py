@@ -30,7 +30,9 @@ def main():
     """
     This is the business part.
     """
-    token = open('API.key', 'r', encoding='utf-8').read().strip()
+    with open('API.key', 'r', encoding='utf-8') as k:
+        token = k.read().strip()
+
     logger.debug("API key found")
 
     book = mkepub.Book(title='OmniVore saved articles')
@@ -48,14 +50,15 @@ def main():
         if article['article']['article']['isArchived'] is False:
 
             content = ''
+            clabel  = ''
             title   = article['article']['article']['title'].replace('&','&amp;')
             aid     = article['article']['article']['id']
-            url     = article['article']['article']['url']
             author  = article['article']['article']['author']
             labels  = article['article']['article']['labels']
-            if not author: author = "No author"
-            if not title: author = "No title"
-            if not url: author = "No URL"
+            if not author:
+                author = "No author"
+            if not title:
+                title += "No title"
 
             logger.debug("Title: " + title)
             logger.debug("ID: " + aid)
@@ -69,8 +72,8 @@ def main():
             if title:
                 content += '<h2>' + title + '</h2>'
 
-            if url:
-                content += '<h6>' + url + '</h6>'
+            if article['article']['article']['url']:
+                content += '<h6>' + article['article']['article']['url'] + '</h6>'
 
             if clabel:
                 content += '<h6>' + clabel + '</h6>'
