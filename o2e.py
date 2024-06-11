@@ -19,8 +19,7 @@ from loguru import logger
 from omnivoreql import OmnivoreQL
 import mkepub
 
-today = datetime.datetime.now().strftime("%Y-%m-%d")
-LF    = "{time:YYYY-MM-DD HH:mm:ss} {level} {file:<20} {line:4} {message} "
+LF = "{time:YYYY-MM-DD HH:mm:ss} {level} {file:<20} {line:4} {message} "
 
 logger.add("o2e.log", rotation="2 days", compression="zip", format=LF)
 
@@ -51,26 +50,23 @@ def main():
 
             content = ''
             clabel  = ''
-            title   = article['article']['article']['title'].replace('&','&amp;')
             aid     = article['article']['article']['id']
-            author  = article['article']['article']['author']
             labels  = article['article']['article']['labels']
-            if not author:
-                author = "No author"
-            if not title:
-                title += "No title"
 
-            logger.debug("Title: " + title)
             logger.debug("ID: " + aid)
 
             if labels and 'name' in labels[0]:
                 clabel = ', '.join(['#' + str(e) + ' ' for e in [dict['name'] for dict in labels]])
 
-            if author:
-                content += '<h3>' + author + '</h3>'
+            if article['article']['article']['author']:
+                content += '<h3>' + article['article']['article']['author'] + '</h3>'
+            else:
+                content += '<h3><i>Author missing</i></h3>'
 
-            if title:
-                content += '<h2>' + title + '</h2>'
+            if article['article']['article']['title'].replace('&','&amp;'):
+                content += '<h2>' + article['article']['article']['title'].replace('&','&amp;') + '</h2>'
+            else:
+                content += '<h2><i>Title missing</i></h2>'
 
             if article['article']['article']['url']:
                 content += '<h6>' + article['article']['article']['url'] + '</h6>'
@@ -91,7 +87,7 @@ def main():
         book.set_stylesheet(file.read())
 
 
-    book.save('Omnivore-newest-' + today + '.epub')
+    book.save('Omnivore-newest-' +  datetime.datetime.now().strftime("%Y-%m-%d") + '.epub')
 
 if __name__ == "__main__":
     main()
