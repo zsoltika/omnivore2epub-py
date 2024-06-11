@@ -30,7 +30,7 @@ def main():
     """
     This is the business part.
     """
-    token = open('API.key', 'r').read().strip()
+    token = open('API.key', 'r', encoding='utf-8').read().strip()
     logger.debug("API key found")
 
     book = mkepub.Book(title='OmniVore saved articles')
@@ -81,10 +81,10 @@ def main():
 
             oc.archive_article(aid)
 
-    with open('cover.jpg', 'rb') as file:
+    with open('cover.jpg', 'rb', encoding='utf-8') as file:
         book.set_cover(file.read())
 
-    with open('base.css') as file:
+    with open('base.css', encoding='utf-8') as file:
         book.set_stylesheet(file.read())
 
 
