@@ -6,11 +6,11 @@ So this simple sciprt relies on the following python packages:
 - omnivoreq
 - mkepub
 
-You also need to have an Omnivore API key (saved in an `API.key` file) 
+You also need to have an Omnivore API key (saved in an `API.key` file)
 in the same directory as the script itself, and a `cover.jpg` file too.
 
 **NOTE**
-The generated EPUB file is not always accepted by Amazon's send to kindle 
+The generated EPUB file is not always accepted by Amazon's send to kindle
 service, because there might be some validation errors.
 """
 import sys
@@ -36,16 +36,16 @@ def main():
 
     book = mkepub.Book(title='OmniVore saved articles')
 
-    oc = OmnivoreQL(token)
-    profile = oc.get_profile()
+    oclient = OmnivoreQL(token)
+    profile = oclient.get_profile()
     user=profile['me']['profile']['username']
 
     # limit: number of articles
     # query: newest by the bellow setting, can be changed to saved asc
-    articles = oc.get_articles(limit=20, query='sort:saved-desc')
+    articles = oclient.get_articles(limit=20, query='sort:saved-desc')
 
-    for a in articles['search']['edges']:
-        article = oc.get_article(username=user, slug=a['node']['slug'])
+    for item in articles['search']['edges']:
+        article = oclient.get_article(username=user, slug=item['node']['slug'])
         if article['article']['article']['isArchived'] is False:
 
             content = ''
@@ -56,7 +56,9 @@ def main():
             logger.debug("ID: " + aid)
 
             if labels and 'name' in labels[0]:
-                clabel = ', '.join(['#' + str(e) + ' ' for e in [dict['name'] for dict in labels]])
+                clabel = ', '.join(['#' + str(e) +
+                                    ' ' for e in [dict['name']
+                                                  for dict in labels]])
 
             if article['article']['article']['author']:
                 content += '<h3>' + article['article']['article']['author'] + '</h3>'
@@ -64,7 +66,9 @@ def main():
                 content += '<h3><i>Author missing</i></h3>'
 
             if article['article']['article']['title'].replace('&','&amp;'):
-                content += '<h2>' + article['article']['article']['title'].replace('&','&amp;') + '</h2>'
+                content += '<h2>'
+                content += article['article']['article']['title'].replace('&','&amp;')
+                content += '</h2>'
             else:
                 content += '<h2><i>Title missing</i></h2>'
 
@@ -76,9 +80,10 @@ def main():
 
             content += article['article']['article']['content']
 
-            book.add_page(title,content)
+            book.add_page(article['article']['article']['title'].replace('&','&amp;'),
+                          content)
 
-            oc.archive_article(aid)
+            oclient.archive_article(aid)
 
     with open('cover.jpg', 'rb', encoding='utf-8') as file:
         book.set_cover(file.read())
@@ -87,7 +92,9 @@ def main():
         book.set_stylesheet(file.read())
 
 
-    book.save('Omnivore-newest-' +  datetime.datetime.now().strftime("%Y-%m-%d") + '.epub')
+    book.save('Omnivore-newest-' +
+              datetime.datetime.now().strftime("%Y-%m-%d") +
+              '.epub')
 
 if __name__ == "__main__":
     main()
