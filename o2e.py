@@ -19,8 +19,7 @@ from loguru import logger
 from omnivoreql import OmnivoreQL
 import mkepub
 
-now   = datetime.datetime.now()
-today = now.strftime("%Y-%m-%d")
+today = datetime.datetime.now().strftime("%Y-%m-%d")
 LF    = "{time:YYYY-MM-DD HH:mm:ss} {level} {file:<20} {line:4} {message} "
 
 logger.add("o2e.log", rotation="2 days", compression="zip", format=LF)
@@ -49,8 +48,7 @@ def main():
         if article['article']['article']['isArchived'] is False:
 
             content = ''
-            title   = article['article']['article']['title']
-            title   = title.replace('&','&amp;')
+            title   = article['article']['article']['title'].replace('&','&amp;')
             aid     = article['article']['article']['id']
             url     = article['article']['article']['url']
             author  = article['article']['article']['author']
@@ -63,8 +61,7 @@ def main():
             logger.debug("ID: " + aid)
 
             if labels and 'name' in labels[0]:
-                labellist = [dict['name'] for dict in labels]
-                clabel = ', '.join(['#' + str(e) + ' ' for e in labellist])
+                clabel = ', '.join(['#' + str(e) + ' ' for e in [dict['name'] for dict in labels]])
 
             if author:
                 content += '<h3>' + author + '</h3>'
@@ -91,8 +88,7 @@ def main():
         book.set_stylesheet(file.read())
 
 
-    efilename = 'Omnivore-newest-' + today + '.epub'
-    book.save(efilename)
+    book.save('Omnivore-newest-' + today + '.epub')
 
 if __name__ == "__main__":
     main()
